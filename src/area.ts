@@ -1,0 +1,242 @@
+import { Particula } from "./particula";
+import { Utils } from "./utils";
+import { State } from "./types";
+import { Subject } from "rxjs";
+
+/**
+ * Area de simulación
+ */
+export class Area {
+  /**
+   * contexto del canvas para dibular la animación
+   */
+  ctx: CanvasRenderingContext2D;
+  /**
+   * particulas a observar en la simulacion
+   */
+  private _particulas: Particula[] = [];
+
+  /**
+   * Variables para realizar la animación del simulador
+   */
+  dt: number = 0;
+  currentTime: number = 0;
+  lastTime: number = 0;
+  clearCanv: boolean = true;
+  paused: boolean = true;
+ 
+  /**
+   * almacena cada cambio que se hace sobre las particulas
+   */
+  private _onChnageParticulas = new Subject<Particula[]>();
+
+  constructor(public canvas: HTMLCanvasElement) {
+    this.ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+    this.draw = this.draw.bind(this);
+  }
+  /**
+   * Funcion para generar las condiciones nesesarias para la simulacion
+   * @param dencidad cantidad de particulas en el area de simulacion
+   */
+  iniciarSimulacion(dencidad = 90) {
+    this.paused = false;
+    /**
+     * Genera las particulas y las ubica de forma aleatoria en el area de simulación 
+     */
+    this._particulas = new Array(dencidad)
+      .fill({})
+      .map(
+        () =>
+          new Particula(
+            Utils.randomRange(0, this.canvas.height - 4),
+            Utils.randomRange(0, this.canvas.width - 4),
+            4
+          )
+      );
+    
+    this.draw();
+    /**
+     * Genera el paciente cero que inicia la epidemia de forma aleatoria
+     * el timeout es para esperar a que las particulas se hayan esparcido por el area
+     */
+    setTimeout(() => {
+      const zeroPatient = Utils.randomRange(0, this._particulas.length);
+      this._particulas[zeroPatient].sick();
+    }, 1000);
+  }
+  /**
+   * pausa la simulacion 
+   */
+  pause() {
+    this.paused = true;
+  }
+  /**
+   * limpia el area de simulación
+   */
+  clearCanvas() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+  /**
+   * evita que las particulas se sobre pongan (solo para efectos visuales)
+   * @param part1 particula 1
+   * @param part2 particula 2
+   */
+  staticCollision(part1: Particula, part2: Particula) {
+    let overlap = part1.size + part2.size - Utils.distance(part1, part2);
+    let theta = Math.atan2(part1.y - part2.y, part1.x - part2.x);
+    part2.x -= overlap * Math.cos(theta);
+    part2.y -= overlap * Math.sin(theta);
+  }
+  /**
+   * genera el contagio al contacto entre particulas si se cumplen las condiciones
+   * Condiciones :
+   * alguna de las 2 este enferma 
+   * la particula a contagiar no este enferma
+   * @param part1 particula 1
+   * @param part2 particula 2
+   */
+  sickParticula(part1: Particula, part2: Particula) {
+    if ([part1, part2].every(p => p.state !== State.SICK)) {
+      return;
+    }
+    if (part1.state === State.SICK && part2.state === State.HEALTHY) {
+      part2.sick();
+    }
+    if (part2.state === State.SICK && part1.state === State.HEALTHY) {
+      part1.sick();
+    }
+  }
+  /**
+   * Evita que las particulas salgan del area de simulación
+   * @param particula particula
+   */
+  wallCollision(particula: Particula) {
+    if (
+      particula.x - particula.size + particula.dx < 0 ||
+      particula.x + particula.size + particula.dx > this.canvas.width
+    ) {
+      particula.dx *= -1;
+    }
+    if (
+      particula.y - particula.size + particula.dy < 0 ||
+      particula.y + particula.size + particula.dy > this.canvas.height
+    ) {
+      particula.dy *= -1;
+    }
+    if (particula.y + particula.size > this.canvas.height) {
+      particula.y = this.canvas.height - particula.size;
+    }
+    if (particula.y - particula.size < 0) {
+      particula.y = particula.size;
+    }
+    if (particula.x + particula.size > this.canvas.width) {
+      particula.x = this.canvas.width - particula.size;
+    }
+    if (particula.x - particula.size < 0) {
+      particula.x = particula.size;
+    }
+  }
+  /**
+   * Verifica la colicion de las particulas particulas
+   */
+  partCollision() {
+    for (let i = 0; i < this._particulas.length - 1; i++) {
+      for (let j = i + 1; j < this._particulas.length; j++) {
+        let part1 = this._particulas[i];
+        let part2 = this._particulas[j];
+        let dist = Utils.distance(part1, part2);
+
+        if (dist < part1.size + part2.size) {
+          let theta1 = part1.angle;
+          let theta2 = part2.angle;
+          let phi = Math.atan2(part2.y - part1.y, part2.x - part1.x);
+          let m1 = part1.mass;
+          let m2 = part2.mass;
+          let v1 = part1.speed;
+          let v2 = part2.speed;
+
+          let dx1F =
+            ((v1 * Math.cos(theta1 - phi) * (m1 - m2) +
+              2 * m2 * v2 * Math.cos(theta2 - phi)) /
+              (m1 + m2)) *
+              Math.cos(phi) +
+            v1 * Math.sin(theta1 - phi) * Math.cos(phi + Math.PI / 2);
+          let dy1F =
+            ((v1 * Math.cos(theta1 - phi) * (m1 - m2) +
+              2 * m2 * v2 * Math.cos(theta2 - phi)) /
+              (m1 + m2)) *
+              Math.sin(phi) +
+            v1 * Math.sin(theta1 - phi) * Math.sin(phi + Math.PI / 2);
+          let dx2F =
+            ((v2 * Math.cos(theta2 - phi) * (m2 - m1) +
+              2 * m1 * v1 * Math.cos(theta1 - phi)) /
+              (m1 + m2)) *
+              Math.cos(phi) +
+            v2 * Math.sin(theta2 - phi) * Math.cos(phi + Math.PI / 2);
+          let dy2F =
+            ((v2 * Math.cos(theta2 - phi) * (m2 - m1) +
+              2 * m1 * v1 * Math.cos(theta1 - phi)) /
+              (m1 + m2)) *
+              Math.sin(phi) +
+            v2 * Math.sin(theta2 - phi) * Math.sin(phi + Math.PI / 2);
+
+          part1.dx = dx1F;
+          part1.dy = dy1F;
+          part2.dx = dx2F;
+          part2.dy = dy2F;
+          this.sickParticula(part1, part2);
+          this.staticCollision(part1, part2);
+        }
+      }
+      this.wallCollision(this._particulas[i]);
+    }
+
+    if (this._particulas.length > 0)
+      this.wallCollision(this._particulas[this._particulas.length - 1]);
+  }
+  /**
+   * mueve cada particula en la direccion y velocidad determinada en cada una
+   */
+  moveParticulas() {
+    for (let i = 0; i < this._particulas.length; i++) {
+      let ob = this._particulas[i];
+      ob.x += ob.dx * this.dt;
+      ob.y += ob.dy * this.dt;
+    }
+  }
+  /**
+   * dibuja cada particula en el area de simulación
+   */
+  drawParticulas() {
+    for (let part in this._particulas) {
+      this._particulas[part].draw(this.ctx);
+    }
+  }
+  /**
+   * Hace la animacion del area de simulación
+   */
+  draw() {
+    this.currentTime = new Date().getTime();
+    this.dt = (this.currentTime - this.lastTime) / 1000;
+    this.dt *= 50;
+    if (this.clearCanv) this.clearCanvas();
+
+    if (!this.paused) {
+      this.moveParticulas();
+      this.partCollision();
+      /**
+       * notifica los cambios de las particulas en cada ciclo de animación
+       */
+      this._onChnageParticulas.next(this._particulas);
+    }
+    this.drawParticulas();
+    this.lastTime = this.currentTime;
+    window.requestAnimationFrame(this.draw);
+  }
+  /**
+   * retorna un observador de las particulas
+   */
+  get particulas() {
+    return this._onChnageParticulas.asObservable();
+  }
+}

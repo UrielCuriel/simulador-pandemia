@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Simulador de Epidemias</title>
+    <link
+      href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <style>
+      body {
+        font-family: "Quicksand", sans-serif;
+      }
+    </style>
+    <div class="container w-1/2 mx-auto">
+      <h1 class="text-center font-bold text-5xl text-gray-600 m-4">
+        Simulador de Epidemias
+      </h1>
+      <div class="controles grid grid-cols-4 col-gap-2 mb-4 items-end">
+        <label class="block mt-4">
+          <span class="text-gray-700">Dencidad de población</span>
+          <div class="relative">
+            <select
+              class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500 hover:bg-gray-300"
+              id="dencidad"
+            >
+              <option value="50">Bajo</option>
+              <option value="90">Medio</option>
+              <option value="130">Alto</option>
+            </select>
+            <div
+              class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"
+            >
+              <svg
+                class="fill-current h-4 w-4"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"
+                />
+              </svg>
+            </div>
+          </div>
+        </label>
+        <div class="relative grid col-span-2 grid-cols-2 items-end col-gap-2">
+          <button
+            id="button"
+            class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow float-left"
+          >
+            Inicar Simulación
+          </button>
+          <button
+            id="button"
+            class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow float-left"
+            onclick="location.reload()"
+          >
+            Reiniciar
+          </button>
+        </div>
+        <div class="relative flex flex-col font-bold text-gray-500">
+          <p class="healthy">
+            <span class="count mx-3 text-teal-500">0</span>Saludables
+          </p>
+          <p class="sick ">
+            <span class="count mx-3 text-yellow-500">0</span>Enfermos
+          </p>
+          <p class="recovered ">
+            <span class="count mx-3 text-blue-600">0</span>Recuperados
+          </p>
+        </div>
+      </div>
+      <div>
+        <canvas
+          id="simulador"
+          width="900"
+          height="500"
+          class="shadow-inner border-2 bg-gray-100 mb-4 w-full"
+        ></canvas>
+        <canvas id="grafica" width="2800" height="450" class="w-full"></canvas>
+      </div>
+    </div>
+
+    <script src="./bundle.js"></script>
+  </body>
+</html>
