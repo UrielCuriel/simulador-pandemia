@@ -50,7 +50,7 @@ export class Particula {
   }
 
   /**
-   *
+   * Función para "enfermar" a la particula, una vez se enferma se inicia el tiempo de recuperación (10 seg)
    */
   sick() {
     this.state = State.SICK;
