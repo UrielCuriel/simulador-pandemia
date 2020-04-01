@@ -77,7 +77,7 @@ export class Area {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
   /**
-   * evita que las partículas se sobre pongan (solo para efectos visuales)
+   * Evita que las partículas se sobre pongan (solo para efectos visuales)
    * @param part1 partícula 1
    * @param part2 partícula 2
    */
@@ -91,7 +91,7 @@ export class Area {
    * Genera el contagio al contacto entre partículas si se cumplen las condiciones
    * Condiciones:
    * alguna de las 2 esté enferma 
-   * la partícula a contagiar no este enferma
+   * la partícula a contagiar no esté enferma
    * @param part1 partícula 1
    * @param part2 partícula 2
    */
