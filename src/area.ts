@@ -8,11 +8,11 @@ import { Subject } from "rxjs";
  */
 export class Area {
   /**
-   * contexto del canvas para dibular la animación
+   * contexto del canvas para dibujar la animación
    */
   ctx: CanvasRenderingContext2D;
   /**
-   * particulas a observar en la simulacion
+   * partículas a observar en la simulación
    */
   private _particulas: Particula[] = [];
 
@@ -22,28 +22,28 @@ export class Area {
   dt: number = 0;
   currentTime: number = 0;
   lastTime: number = 0;
-  clearCanv: boolean = true;
+  _clearCanvas: boolean = true;
   paused: boolean = true;
  
   /**
-   * almacena cada cambio que se hace sobre las particulas
+   * almacena cada cambio que se hace sobre las partículas
    */
-  private _onChnageParticulas = new Subject<Particula[]>();
+  private _onChangeParticulas = new Subject<Particula[]>();
 
   constructor(public canvas: HTMLCanvasElement) {
     this.ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
     this.draw = this.draw.bind(this);
   }
   /**
-   * Funcion para generar las condiciones nesesarias para la simulacion
-   * @param dencidad cantidad de particulas en el area de simulacion
+   * Función para generar las condiciones necesarias para la simulación
+   * @param densidad cantidad de partículas en el area de simulación
    */
-  iniciarSimulacion(dencidad = 90) {
+  iniciarSimulacion(densidad = 90) {
     this.paused = false;
     /**
-     * Genera las particulas y las ubica de forma aleatoria en el area de simulación 
+     * Genera las partículas y las ubica de forma aleatoria en el area de simulación 
      */
-    this._particulas = new Array(dencidad)
+    this._particulas = new Array(densidad)
       .fill({})
       .map(
         () =>
@@ -57,7 +57,7 @@ export class Area {
     this.draw();
     /**
      * Genera el paciente cero que inicia la epidemia de forma aleatoria
-     * el timeout es para esperar a que las particulas se hayan esparcido por el area
+     * el timeout es para esperar a que las partículas se hayan esparcido por el area
      */
     setTimeout(() => {
       const zeroPatient = Utils.randomRange(0, this._particulas.length);
@@ -65,7 +65,7 @@ export class Area {
     }, 1000);
   }
   /**
-   * pausa la simulacion 
+   * pausa la simulación 
    */
   pause() {
     this.paused = true;
@@ -78,8 +78,8 @@ export class Area {
   }
   /**
    * evita que las particulas se sobre pongan (solo para efectos visuales)
-   * @param part1 particula 1
-   * @param part2 particula 2
+   * @param part1 partícula 1
+   * @param part2 partícula 2
    */
   staticCollision(part1: Particula, part2: Particula) {
     let overlap = part1.size + part2.size - Utils.distance(part1, part2);
@@ -91,9 +91,9 @@ export class Area {
    * genera el contagio al contacto entre particulas si se cumplen las condiciones
    * Condiciones :
    * alguna de las 2 este enferma 
-   * la particula a contagiar no este enferma
-   * @param part1 particula 1
-   * @param part2 particula 2
+   * la partícula a contagiar no este enferma
+   * @param part1 partícula 1
+   * @param part2 partícula 2
    */
   sickParticula(part1: Particula, part2: Particula) {
     if ([part1, part2].every(p => p.state !== State.SICK)) {
@@ -108,7 +108,7 @@ export class Area {
   }
   /**
    * Evita que las particulas salgan del area de simulación
-   * @param particula particula
+   * @param particula partícula
    */
   wallCollision(particula: Particula) {
     if (
@@ -137,7 +137,7 @@ export class Area {
     }
   }
   /**
-   * Verifica la colicion de las particulas particulas
+   * Verifica la colisión de las particulas particulas
    */
   partCollision() {
     for (let i = 0; i < this._particulas.length - 1; i++) {
@@ -195,7 +195,7 @@ export class Area {
       this.wallCollision(this._particulas[this._particulas.length - 1]);
   }
   /**
-   * mueve cada particula en la direccion y velocidad determinada en cada una
+   * mueve cada particula en la dirección y velocidad determinada en cada una
    */
   moveParticulas() {
     for (let i = 0; i < this._particulas.length; i++) {
@@ -213,13 +213,13 @@ export class Area {
     }
   }
   /**
-   * Hace la animacion del area de simulación
+   * Hace la animación del area de simulación
    */
   draw() {
     this.currentTime = new Date().getTime();
     this.dt = (this.currentTime - this.lastTime) / 1000;
     this.dt *= 50;
-    if (this.clearCanv) this.clearCanvas();
+    if (this._clearCanvas) this.clearCanvas();
 
     if (!this.paused) {
       this.moveParticulas();
@@ -227,7 +227,7 @@ export class Area {
       /**
        * notifica los cambios de las particulas en cada ciclo de animación
        */
-      this._onChnageParticulas.next(this._particulas);
+      this._onChangeParticulas.next(this._particulas);
     }
     this.drawParticulas();
     this.lastTime = this.currentTime;
@@ -237,6 +237,6 @@ export class Area {
    * retorna un observador de las particulas
    */
   get particulas() {
-    return this._onChnageParticulas.asObservable();
+    return this._onChangeParticulas.asObservable();
   }
 }

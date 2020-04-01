@@ -1,5 +1,5 @@
 /**
- * Posibles estados de la particula
+ * Posibles estados de la partícula
  */
 export enum State {
   HEALTHY,

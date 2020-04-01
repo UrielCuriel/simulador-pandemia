@@ -2,28 +2,28 @@ import { State } from "./types";
 
 export namespace Utils {
   /**
-   * Genera la direccion inicial en el eje x
+   * Genera la dirección inicial en el eje x
    */
   export const randomDx = () => {
     return Math.floor(Math.random() * 10 - 4);
   };
   /**
-   * Genera la direccion inicial en el eje y
+   * Genera la dirección inicial en el eje y
    */
   export const randomDy = () => {
     return Math.floor(Math.random() * 10 - 3);
   };
   /**
-   * Regresa el color de relleno dependiendo del estado del pa paricula
-   * @param state Estado de la particula
+   * Regresa el color de relleno dependiendo del estado del pa partícula
+   * @param state Estado de la partícula
    */
   export const getFillColor = (state: State) => {
     const colors = ["#81E6D9", "#ECC94B", "#4299E1"];
     return colors[state];
   };
   /**
-   * Regresa el color del contorno dependiendo del estado del pa paricula
-   * @param state Estado de la particula
+   * Regresa el color del contorno dependiendo del estado del pa partícula
+   * @param state Estado de la partícula
    */
   export const getStrokeColor = (state: State) => {
     const colors = ["#319795", "#975A16", "#2C5282"];
@@ -31,7 +31,7 @@ export namespace Utils {
   };
 
   /**
-   * Calcula la distancia entre dos particulas
+   * Calcula la distancia entre dos partículas
    * @param a - Objeto 1 para comparar
    * @param b - Objeto 2 para comparar
    */

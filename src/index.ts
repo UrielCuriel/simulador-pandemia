@@ -15,7 +15,7 @@ function main() {
     "grafica"
   ) as HTMLCanvasElement;
   const select: HTMLSelectElement = document.getElementById(
-    "dencidad"
+    "densidad"
   ) as HTMLSelectElement;
 
   const healthyCount = document.querySelector(".healthy .count");
@@ -25,12 +25,12 @@ function main() {
   const grafica = new Chart(graficaCanvas);
 
   /**
-   * Observa los cambios de las particulas
+   * Observa los cambios de las partículas
    */
   area.particulas
     .pipe(
       /**
-       * filtra las particulas por el estado de cada una
+       * filtra las partículas por el estado de cada una
        */
       map(particulas => ({
         healthy: particulas.filter(p => p.state === State.HEALTHY).length,
@@ -64,8 +64,8 @@ function main() {
   fromEvent(button, "click").subscribe(() => {
     if (area.paused) {
       grafica.clearCanvas();
-      const dencity = Number(select.value);
-      area.iniciarSimulacion(dencity);
+      const density = Number(select.value);
+      area.iniciarSimulacion(density);
       button.classList.add("opacity-50", "cursor-wait", "pointer-events-none");
       select.classList.add("opacity-50", "cursor-wait", "pointer-events-none");
     }
