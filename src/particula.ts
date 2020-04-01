@@ -17,7 +17,7 @@ export class Particula {
     this.mass = size ** 3;
   }
   /**
-   * Función para dibujar la particula
+   * Función para dibujar la partícula
    * @param ctx Contexto del canvas html
    */
   draw(ctx: CanvasRenderingContext2D) {
@@ -42,8 +42,8 @@ export class Particula {
     return Math.atan2(this.dy, this.dx);
   }
   /**
-   * Calcula si la particula sigue dentro del area de dibujado
-   * @param canvas canvas donde se dibuja la particula
+   * Calcula si la partícula sigue dentro del area de dibujado
+   * @param canvas canvas donde se dibuja la partícula
    */
   onGround(canvas: HTMLCanvasElement) {
     return this.y + this.size >= canvas.height;
